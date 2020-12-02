@@ -1,5 +1,7 @@
 package com.enseirb.meteo.servlets;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 
 import javax.inject.Inject;
@@ -18,50 +20,61 @@ import com.enseirb.meteo.repository.ModelWrf;
 @WebServlet("/meteo")
 public class MeteoServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	
-	
-	static final String METEO="ModelWrf";//((config.getConfig().equals("Wrf")) ? "ModelWrf" :"ModelGfs");
-	
+
+	static final String METEO = "ModelWrf";// ((config.getConfig().equals("Wrf")) ? "ModelWrf" :"ModelGfs");
+
 	@Inject
-	@ModelWrf	
+	@ModelWrf
 	private MeteoProvider meteoProvider;
 
-	
-	
 	@Override
-	protected void doGet(HttpServletRequest request,
-			HttpServletResponse response) throws ServletException, IOException {
+	protected void doGet(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
 		HttpSession session = request.getSession();
 		if (session.getAttribute("nom") == null) {
-			
+
 			response.sendRedirect(request.getContextPath() + "/meteo/login");
 		}
-		
-		request.getRequestDispatcher("/WEB-INF/MeteoDisplay.jsp").forward(
-				request, response);
+
+		request.getRequestDispatcher("/WEB-INF/MeteoDisplay.jsp").forward(request, response);
 
 	}
 
 	@Override
-	protected void doPost(HttpServletRequest request,
-			HttpServletResponse response) throws ServletException, IOException {
+	protected void doPost(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
 
-		
-		//récupérer le nom de la ville
+		// récupérer le nom de la ville
 		String ville = request.getParameter("ville");
+		int cityFound = 0;
+		try {
+			FileReader fileCitie = new FileReader(
+					"C:\\Users\\disim\\Desktop\\geo310\\src\\main\\resources\\cities.lst");
+			BufferedReader bufferreader = new BufferedReader(fileCitie);
+			String line;
+			while ((line = bufferreader.readLine()) != null) {
+				if (line.equals(ville.toUpperCase())) {
+					cityFound = 1;
+					break;
+				}
+			}
 
-		//récupérer la température de la ville 
+			fileCitie.close();
+
+		} catch (Exception e) {
+		}
+		// récupérer la température de la ville
 		int meteo = meteoProvider.getTemperature(ville);
 
-		//envoyer les données 
+		// envoyer les données
 		request.setAttribute("ville", ville);
+		request.setAttribute("cityFound", cityFound);
 		request.setAttribute("meteo", meteo);
 		HttpSession session = request.getSession();
-		int n = (int)session.getAttribute("accessNumber");
+		int n = (int) session.getAttribute("accessNumber");
 		n++;
 		session.setAttribute("accessNumber", n);
-		request.getRequestDispatcher("WEB-INF/MeteoDisplay.jsp").forward(
-				request, response);
+		request.getRequestDispatcher("WEB-INF/MeteoDisplay.jsp").forward(request, response);
 
 	}
 

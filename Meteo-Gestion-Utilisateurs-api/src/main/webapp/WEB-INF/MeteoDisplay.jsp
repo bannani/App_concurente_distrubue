@@ -4,6 +4,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<c:if test="${cityFound == 1}">	
 <script>
 $(document).ready(function(){
   $("button").click(function(){
@@ -14,6 +15,10 @@ $(document).ready(function(){
   });
 });
 </script>
+</c:if>
+<c:if test="${cityFound == 1}">	
+<h1>la ville n'existe pas</h1>
+</c:if>
 <title>Meteo</title>
 </head>
 <body>
